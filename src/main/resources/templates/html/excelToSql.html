@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Excel to SQL Converter</title>
+    <link rel="stylesheet" href="/css/excelToSql.css">
+    <script src="/js/excelToSql.js"></script>
+</head>
+<body>
+<div class="container">
+    <div class="form-container">
+        <h2>Excel to SQL Converter</h2>
+        <form id="excelToSqlForm" action="excelToSqlFile" method="post" enctype="multipart/form-data">
+            <label for="file">1. 上传Excel文件（必填）:</label>
+            <input type="file" name="file" required>
+
+            <label for="tableName">2. 生成SQL语句的表名（必填）:</label>
+            <input type="text" name="tableName" required>
+
+            <label for="sheetNumber">3. Sheet编号（必填）:</label>
+            <input type="number" name="sheetNumber" required>
+
+            <label for="type">4. 生成语句类型（必填）:</label>
+            <select name="type" required onchange="toggleFields()">
+                <option value="add">Add</option>
+                <option value="update">Update</option>
+                <option value="delete">Delete</option>
+            </select>
+
+            <label for="startIndex" class="hidden">5. 数据开始下标（仅限非Add类型）:</label>
+            <input type="number" name="startIndex" class="hidden">
+
+            <label for="endIndex" class="hidden">6. 数据结束下标（仅限非Add类型）:</label>
+            <input type="number" name="endIndex" class="hidden">
+
+            <label for="conditionNums" class="hidden">7. 修改、删除时的条件列编号（仅限非Add类型）:</label>
+            <input type="text" name="conditionNums" class="hidden">
+
+            <button type="submit">生成SQL语句</button>
+        </form>
+    </div>
+
+    <div class="result-container">
+        <h2>sql文本</h2>
+        <pre id="result"></pre>
+        <button id="downloadButton" style="display: none;">下载结果</button>
+    </div>
+</div>
+</body>
+</html>
