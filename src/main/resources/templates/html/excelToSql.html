@@ -4,8 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Excel to SQL Converter</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/themes/prism.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/prism.min.js"></script>
+
     <link rel="stylesheet" href="/css/excelToSql.css">
-    <script src="/js/excelToSql.js"></script>
+    <script src="/js/excelToSql.js" defer></script>
+
 </head>
 <body>
 <div class="container">
@@ -42,8 +47,10 @@
     </div>
 
     <div class="result-container">
-        <h2>sql文本</h2>
-        <pre id="result"></pre>
+        <h2>sql脚本预览</h2>
+
+        <pre id="result" class="language-sql"></pre>
+
         <button id="downloadButton" style="display: none;">下载结果</button>
     </div>
 </div>

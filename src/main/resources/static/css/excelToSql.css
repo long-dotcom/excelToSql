@@ -60,3 +60,55 @@ pre {
 .hidden {
     display: none;
 }
+
+
+.result-container {
+    display: flex;
+    flex-direction: column;
+    width: 75%;
+    padding: 20px;
+    background-color: #f9f9f9;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    overflow-y: auto; /* 添加此样式以启用垂直滚动条 */
+    max-height: 70vh; /* 设置最大高度，以便在内容过多时出现滚动条 */
+}
+
+#result {
+    flex: 1; /* 填充剩余空间 */
+}
+
+#downloadButton {
+    margin-top: 20px; /* 设置顶部间距 */
+    align-self: flex-end; /* 将下载按钮靠右对齐 */
+}
+
+.result-container::-webkit-scrollbar {
+    width: 8px; /* 设置滚动条宽度 */
+    transition: opacity 0.3s; /* 添加过渡效果 */
+    opacity: 0; /* 初始时设置滚动条为透明 */
+}
+
+.result-container:hover::-webkit-scrollbar {
+    opacity: 1; /* 悬停时将滚动条逐渐变为不透明 */
+}
+
+.result-container::-webkit-scrollbar-thumb {
+    background: #888; /* 设置滚动条滑块颜色 */
+    border-radius: 10px; /* 设置滚动条滑块圆角 */
+    border: 2px solid #f1f1f1; /* 设置滚动条滑块边框 */
+}
+
+.result-container::-webkit-scrollbar-thumb:hover {
+    background: #555; /* 设置滚动条滑块悬停时的颜色 */
+}
+
+#result {
+    font-size: 12px; /* 设置字号为 14 像素 */
+}
+
+
+
+
+
+
+

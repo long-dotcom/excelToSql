@@ -3,7 +3,7 @@ package com.example.excelsql.server;
 
 import com.example.excelsql.dto.ExcelToSqlPO;
 
-import java.io.File;
+import java.util.Map;
 
 
 /**
@@ -14,5 +14,5 @@ public interface ExcelToSqlServer {
     /**
      * @return {@link Object}
      */
-    public File excelToSql( ExcelToSqlPO po);
+    public Map<String, Object> excelToSql(ExcelToSqlPO po);
 }

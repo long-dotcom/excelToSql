@@ -52,40 +52,55 @@ document.getElementById('excelToSqlForm').addEventListener('submit', function(e)
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
-            return response.text();  // 获取 文本内容
+            return response.json();  // 获取 文本内容
         })
-        .then(textContent => {
-            // 显示结果在页面
-            document.getElementById('result').innerText = "";
-            // 显示下载按钮
-            document.getElementById('downloadButton').style.display = 'block';
+        .then(data => {
 
+            var decodedData = atob(data.sqlFile);
+            var arrayBuffer = new ArrayBuffer(decodedData.length);
+            var uint8Array = new Uint8Array(arrayBuffer);
+            for (var i = 0; i < decodedData.length; i++) {
+                uint8Array[i] = decodedData.charCodeAt(i);
+            }
+            var blob = new Blob([arrayBuffer], { type: 'application/octet-stream' });
+
+            // 更新页面结果和下载按钮
+            document.getElementById('downloadButton').style.display = 'block';
+            document.getElementById('downloadButton').href = window.URL.createObjectURL(blob);
+            document.getElementById('downloadButton').download = data.sqlFile; // 设置下载文件名
+
+            // 如果需要显示预览数据
+            if (data.previewData) {
+                var previewData = data.previewData.join('\n\n');
+                document.getElementById('result').innerText = previewData;
+            }
         })
         .catch(error => {
             console.error('Error:', error);
         });
 });
 
+document.getElementById('downloadButton').addEventListener('click', function() {
+    // 获取要下载的文件的 URL
+    var downloadURL = this.href;
 
-// 下载结果按钮的点击事件
-$('#downloadButton').click(function(e) {
-    e.preventDefault();  // 阻止默认行为
+    // 创建一个链接元素
+    var link = document.createElement('a');
+    link.href = downloadURL;
 
-    // 获取结果内容
-    var resultContent = $('#result').text();
+    // 设置下载的文件名
+    link.download = 'sql_file.sql'; // 设置默认文件名
 
-    // 创建 Blob 对象
-    var blob = new Blob([resultContent], { type: 'text/plain' });
+    // 点击下载
+    link.click();
 
-    // 创建下载链接
-    var downloadLink = document.createElement('a');
-    downloadLink.href = window.URL.createObjectURL(blob);
-    downloadLink.download = 'output.txt';
-
-    // 将链接添加到页面，并模拟点击下载
-    document.body.appendChild(downloadLink);
-    downloadLink.click();
-
-    // 移除链接
-    document.body.removeChild(downloadLink);
+    // 下载完成后移除链接元素
+    link.remove();
 });
+
+Prism.highlightAll();
+
+
+
+
+

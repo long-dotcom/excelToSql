@@ -13,7 +13,9 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class ExcelToSqlServerImpl implements ExcelToSqlServer {
@@ -23,7 +25,7 @@ public class ExcelToSqlServerImpl implements ExcelToSqlServer {
      * @return {@link Object}
      */
     @Override
-    public File excelToSql(ExcelToSqlPO po) {
+    public Map<String, Object> excelToSql(ExcelToSqlPO po) {
         MultipartFile file = po.getFile();
         InputStream inputStream = null;
         Sheet sheet;
@@ -58,9 +60,9 @@ public class ExcelToSqlServerImpl implements ExcelToSqlServer {
 
     }
 
-    private File update(Sheet sheet, String tableName, int startIndex, int endIndex, List<Integer> conditionNums) {
+    private Map update(Sheet sheet, String tableName, int startIndex, int endIndex, List<Integer> conditionNums) {
         List<String> sqlStatements = new ArrayList<>();
-
+        Map map = new HashMap<>();
         for (int rowNum = startIndex; rowNum <= endIndex; rowNum++) {
             StringBuilder updateSQL = new StringBuilder("UPDATE " + tableName + " SET ");
             Row row = sheet.getRow(rowNum);
@@ -79,10 +81,15 @@ public class ExcelToSqlServerImpl implements ExcelToSqlServer {
                 updateSQL.append(buildCondition(sheet, conditionNums, rowNum));
             }
             sqlStatements.add(String.valueOf(updateSQL));
+            if ((rowNum -startIndex) <= 26){
+                map.put("previewData", sqlStatements);
+                List<String> subSqlStatements = new ArrayList<>(sqlStatements);
+                map.put("previewData", subSqlStatements);
+            }
         }
 
         // 生成 .sql 文件并将 SQL 语句写入其中
-        File sqlFile = new File("output.sql");
+        File sqlFile = new File(tableName + ".sql");
         try (PrintWriter writer = new PrintWriter(sqlFile)) {
             for (String sqlStatement : sqlStatements) {
                 writer.println(sqlStatement);
@@ -90,7 +97,8 @@ public class ExcelToSqlServerImpl implements ExcelToSqlServer {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return sqlFile;
+        map.put("sqlFile", sqlFile);
+        return map;
     }
 
     /**
@@ -129,7 +137,7 @@ public class ExcelToSqlServerImpl implements ExcelToSqlServer {
         return row.getCell(colNum).getStringCellValue();
     }
 
-    private File delete(Sheet sheet, String tableName, int startIndex, int endIndex, List<Integer> conditionNums) {
+    private Map delete(Sheet sheet, String tableName, int startIndex, int endIndex, List<Integer> conditionNums) {
         StringBuilder deleteSQL = new StringBuilder("DELETE FROM " + tableName);
         StringBuilder whereSQL = new StringBuilder(" WHERE ");
         String sql = "";
@@ -146,7 +154,7 @@ public class ExcelToSqlServerImpl implements ExcelToSqlServer {
             while (start <= endIndex) {
                 saveData(sheet, conditionNums, valuesSQL, start);
                 start++;
-                if (start < endIndex) {
+                if (start <= endIndex) {
                     valuesSQL.append(", ");
                 }
             }
@@ -180,13 +188,18 @@ public class ExcelToSqlServerImpl implements ExcelToSqlServer {
             whereSQL.append(valuesSQL).append(")");
             sql = deleteSQL.toString() + whereSQL.toString();
         }
-        File sqlFile = new File("output.sql");
+        File sqlFile = new File(tableName + ".sql");
         try (PrintWriter writer = new PrintWriter(sqlFile)) {
             writer.println(sql);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return sqlFile;
+        Map map = new HashMap<>();
+        map.put("sqlFile", sqlFile);
+        List list = new ArrayList<>();
+        list.add(sql);
+        map.put("previewData",list );
+        return map;
 
     }
 
@@ -201,7 +214,7 @@ public class ExcelToSqlServerImpl implements ExcelToSqlServer {
         }
     }
 
-    private File add(Sheet sheet, String tableName) {
+    private Map add(Sheet sheet, String tableName) {
         List<String> sqlStatements = new ArrayList<>();
 
         StringBuilder insertSQL = new StringBuilder("INSERT INTO " + tableName + " (");
@@ -222,6 +235,7 @@ public class ExcelToSqlServerImpl implements ExcelToSqlServer {
         insertSQL.append(") ");
 
         int rowIndex = 0; // 用于跟踪当前行的索引
+        Map returnData = new HashMap<String,Object>();
         for (Row row : sheet) {
             StringBuilder valuesSQL = new StringBuilder("VALUES (");
             if (rowIndex > 0) {
@@ -243,11 +257,15 @@ public class ExcelToSqlServerImpl implements ExcelToSqlServer {
                 sqlStatements.add(finalSQL);
             }
             rowIndex++;
+            if (rowIndex == 26) {
+                List<String> subSqlStatements = new ArrayList<>(sqlStatements);
+                returnData.put("previewData", subSqlStatements);
+            }
         }
 
 
         // 生成 .sql 文件并将 SQL 语句写入其中
-        File sqlFile = new File("output.sql");
+        File sqlFile = new File(tableName + ".sql");
         try (PrintWriter writer = new PrintWriter(sqlFile)) {
             for (String sqlStatement : sqlStatements) {
                 writer.println(sqlStatement);
@@ -255,7 +273,8 @@ public class ExcelToSqlServerImpl implements ExcelToSqlServer {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return sqlFile;
+        returnData.put("sqlFile", sqlFile);
+        return returnData;
     }
 
     private String getCellValueAsString(Cell cell) {

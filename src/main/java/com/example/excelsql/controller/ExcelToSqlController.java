@@ -1,15 +1,21 @@
 package com.example.excelsql.controller;
 
 import com.example.excelsql.dto.ExcelToSqlPO;
+import com.example.excelsql.dto.ExcelToSqlResponse;
 import com.example.excelsql.server.ExcelToSqlServer;
 import jakarta.annotation.Resource;
+import org.apache.commons.io.FileUtils;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.io.*;
+import java.util.Base64;
+import java.util.List;
+import java.util.Map;
 
 /**
  * excel到sql控制器
@@ -30,22 +36,28 @@ public class ExcelToSqlController {
      * @return {@link ResponseEntity}<{@link InputStreamResource}>
      */
     @PostMapping("/excelToSqlFile")
-    public ResponseEntity<InputStreamResource> excelToSqlFile(ExcelToSqlPO po) {
-        File sqlFile = excelToSqlServer.excelToSql(po);
-        HttpHeaders headers = new HttpHeaders();
-        headers.add(HttpHeaders.CONTENT_TYPE, "text/plain"); // 设置内容类型为纯文本
+    public ResponseEntity<ExcelToSqlResponse> excelToSqlFile(ExcelToSqlPO po) {
+        Map<String, Object> result = excelToSqlServer.excelToSql(po);
+        File sqlFile = (File) result.get("sqlFile");
+        List<String> previewDataList = (List<String>) result.get("previewData");
 
-        InputStreamResource resource = null;
+        // 将文件内容转换为Base64字符串
+        String base64Content = null;
         try {
-            resource = new InputStreamResource(new FileInputStream(sqlFile));
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            return ResponseEntity.notFound().build();
+            base64Content = Base64.getEncoder().encodeToString(FileUtils.readFileToByteArray(sqlFile));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
+
+        // 创建 ExcelToSqlResponse 对象
+        ExcelToSqlResponse response = new ExcelToSqlResponse(base64Content, previewDataList);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
         return ResponseEntity.ok()
                 .headers(headers)
-                .contentLength(sqlFile.length())
-                .body(resource);
+                .body(response);
     }
 
     @GetMapping("/excelToSqlPage")
