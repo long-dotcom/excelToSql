@@ -63,7 +63,7 @@ public class ExcelToSqlController {
     @GetMapping("/excelToSqlPage")
     public ModelAndView excelToSqlPage() {
         ModelAndView modelAndView = new ModelAndView();
-        modelAndView.setViewName("html/excelToSql");
+        modelAndView.setViewName("index");
         return modelAndView;
     }
 }
