@@ -5,14 +5,19 @@ import com.example.excelsql.dto.ExcelToSqlResponse;
 import com.example.excelsql.server.ExcelToSqlServer;
 import jakarta.annotation.Resource;
 import org.apache.commons.io.FileUtils;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
@@ -65,5 +70,33 @@ public class ExcelToSqlController {
         ModelAndView modelAndView = new ModelAndView();
         modelAndView.setViewName("index");
         return modelAndView;
+    }
+
+    @GetMapping("/excelToSqlPage/preview")
+    public ModelAndView excelToSqlPagePreview() {
+        ModelAndView modelAndView = new ModelAndView();
+        modelAndView.setViewName("preview");
+        return modelAndView;
+    }
+
+    @PostMapping("/getSheetNames")
+    public ResponseEntity<List<String>> getExcelSheetNames(@RequestParam("excelFile") MultipartFile file) throws IOException {
+        // 创建输入流
+        try (InputStream inputStream = file.getInputStream()) {
+            // 创建一个工作簿对象来读取Excel文件
+            Workbook workbook = new XSSFWorkbook(inputStream);
+
+            // 获取所有工作表的名字
+            List<String> sheetNames = new ArrayList<>();
+            for (int i = 0; i < workbook.getNumberOfSheets(); i++) {
+                Sheet sheet = workbook.getSheetAt(i);
+                sheetNames.add(sheet.getSheetName());
+            }
+
+            // 关闭工作簿以释放资源
+            workbook.close();
+
+            return ResponseEntity.ok(sheetNames);
+        }
     }
 }

@@ -23,8 +23,10 @@
             <label for="tableName">2. 生成SQL语句的表名（必填）:</label>
             <input type="text" name="tableName" required>
 
-            <label for="sheetNumber">3. Sheet编号（必填）:</label>
-            <input type="number" name="sheetNumber" required>
+            <label for="sheetName">3. Sheet名称（必填）:</label>
+            <select name="sheetName" id="sheetNameSelect" required>
+                <!-- 这里动态填充 -->
+            </select>
 
             <label for="type">4. 生成语句类型（必填）:</label>
             <select name="type" required onchange="toggleFields()">
@@ -41,7 +43,6 @@
 
             <label for="conditionNums" class="hidden">7. 修改、删除时的条件列编号（仅限非Add类型）:</label>
             <input type="text" name="conditionNums" class="hidden">
-
             <button type="submit">生成SQL语句</button>
         </form>
     </div>
