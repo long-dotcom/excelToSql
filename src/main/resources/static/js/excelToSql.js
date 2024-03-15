@@ -28,6 +28,37 @@ function toggleFields() {
     }
 }
 
+document.querySelector('input[type="file"]').addEventListener('change', async function (event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    // 假设后端接口URL是 '/getSheetNames'
+    const formData = new FormData();
+    formData.append('excelFile', file);
+
+    const sheetNamesResponse = await fetch(`/getSheetNames`, {
+        method: 'POST',
+        body: formData
+    });
+
+    if (!sheetNamesResponse.ok) {
+        console.error('Failed to fetch sheet names');
+        return;
+    }
+
+    const sheetNames = await sheetNamesResponse.json();
+
+    // 清空并填充Sheet名称下拉框
+    const sheetNameSelect = document.getElementById('sheetNameSelect');
+    sheetNameSelect.innerHTML = '';
+    sheetNames.forEach(sheetName => {
+        const option = document.createElement('option');
+        option.value = sheetName;
+        option.textContent = sheetName;
+        sheetNameSelect.appendChild(option);
+    });
+});
+
 document.getElementById('excelToSqlForm').addEventListener('submit', function(e) {
     e.preventDefault();
 
