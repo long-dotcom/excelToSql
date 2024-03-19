@@ -5,9 +5,10 @@ FROM openjdk:17-jdk
 WORKDIR /app
 
 # 将本地的 excel-sql-0.0.1-SNAPSHOT.jar 文件复制到容器内的 /app 目录
-COPY ./excel-sql-0.0.1-SNAPSHOT.jar /app/excel-sql-0.0.1-SNAPSHOT.jar
+COPY ./target/excel-sql-0.0.1-SNAPSHOT.jar /app/excel-sql-0.0.1-SNAPSHOT.jar
 
 # 定义容器启动时执行的命令
 CMD ["java", "-jar", "/app/excel-sql-0.0.1-SNAPSHOT.jar"]
+
 
 
