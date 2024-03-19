@@ -3,7 +3,6 @@ package com.example.excelsql.controller;
 import com.example.excelsql.dto.ExcelToSqlPO;
 import com.example.excelsql.dto.ExcelToSqlResponse;
 import com.example.excelsql.server.ExcelToSqlServer;
-import jakarta.annotation.Resource;
 import org.apache.commons.io.FileUtils;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -16,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.annotation.Resource;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Base64;
