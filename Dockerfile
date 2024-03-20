@@ -8,7 +8,7 @@ WORKDIR /app
 COPY ./target/excel-sql-0.0.1-SNAPSHOT.jar /app/excel-sql-0.0.1-SNAPSHOT.jar
 
 # 定义容器启动时执行的命令
-CMD ["java", "-jar", "/app/excel-sql-0.0.1-SNAPSHOT.jar"]
+CMD ["java", "-jar", "-Dserver.port=9999", "/app/excel-sql-0.0.1-SNAPSHOT.jar"]
 
 
 
