@@ -3,7 +3,6 @@ package com.example.excelsql.controller;
 import com.example.excelsql.dto.ExcelToSqlPO;
 import com.example.excelsql.dto.ExcelToSqlResponse;
 import com.example.excelsql.server.ExcelToSqlServer;
-import org.apache.commons.io.FileUtils;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -18,7 +17,6 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.annotation.Resource;
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 
@@ -43,17 +41,10 @@ public class ExcelToSqlController {
     @PostMapping("/excelToSqlFile")
     public ResponseEntity<ExcelToSqlResponse> excelToSqlFile(ExcelToSqlPO po) {
         Map<String, Object> result = excelToSqlServer.excelToSql(po);
-        File sqlFile = (File) result.get("sqlFile");
         List<String> previewDataList = (List<String>) result.get("previewData");
 
         // 将文件内容转换为Base64字符串
-        String base64Content = null;
-        try {
-            base64Content = Base64.getEncoder().encodeToString(FileUtils.readFileToByteArray(sqlFile));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
+        String base64Content = (String) result.get("base64Sql");
         // 创建 ExcelToSqlResponse 对象
         ExcelToSqlResponse response = new ExcelToSqlResponse(base64Content, previewDataList);
 

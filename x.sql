@@ -1,1 +1,0 @@
-DELETE FROM x WHERE id IN  ('9781', '9782', '14000''14001' );
