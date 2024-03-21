@@ -11,11 +11,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class ExcelToSqlServerImpl implements ExcelToSqlServer {
@@ -33,31 +31,38 @@ public class ExcelToSqlServerImpl implements ExcelToSqlServer {
             inputStream = file.getInputStream();
             Workbook workbook = new XSSFWorkbook(inputStream);
             sheet = workbook.getSheetAt(po.getSheetNum());
+            switch (po.getType()) {
+                case "add" -> {
+                    // 处理增加操作
+                    return add(sheet, po.getTableName());
+                }
+                case "delete" -> {
+                    // 处理删除操作
+                    return delete(sheet, po.getTableName(), po.getStartIndex(), po.getEndIndex(), po.getConditionNums());
+                }
+                case "update" ->
+                // 处理修改操作
+                {
+                    return update(sheet, po.getTableName(), po.getStartIndex(), po.getEndIndex(), po.getConditionNums());
+                }
+                default ->
+                    // 默认操作，可以是增加也可以是其他处理方式
+                        System.out.println("执行默认操作（增加）");
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
-        }
-        switch (po.getType()) {
-            case "add" -> {
-                // 处理增加操作
-                return add(sheet, po.getTableName());
+        } finally {
+            if (inputStream != null) {
+                try {
+                    inputStream.close();
+                } catch (IOException e) {
+                    // log the exception or handle it appropriately
+                    e.printStackTrace();
+                }
             }
-            case "delete" -> {
-                // 处理删除操作
-                return delete(sheet, po.getTableName(), po.getStartIndex(), po.getEndIndex(), po.getConditionNums());
-            }
-            case "update" ->
-            // 处理修改操作
-            {
-                return update(sheet, po.getTableName(), po.getStartIndex(), po.getEndIndex(), po.getConditionNums());
-            }
-            default ->
-                // 默认操作，可以是增加也可以是其他处理方式
-                    System.out.println("执行默认操作（增加）");
         }
 
         return null;
-
-
     }
 
     private Map update(Sheet sheet, String tableName, int startIndex, int endIndex, List<Integer> conditionNums) {
@@ -81,23 +86,20 @@ public class ExcelToSqlServerImpl implements ExcelToSqlServer {
                 updateSQL.append(buildCondition(sheet, conditionNums, rowNum));
             }
             sqlStatements.add(String.valueOf(updateSQL));
-            if ((rowNum -startIndex) <= 26){
+            if ((rowNum - startIndex) <= 26) {
                 map.put("previewData", sqlStatements);
                 List<String> subSqlStatements = new ArrayList<>(sqlStatements);
                 map.put("previewData", subSqlStatements);
             }
         }
 
-        // 生成 .sql 文件并将 SQL 语句写入其中
-        File sqlFile = new File(tableName + ".sql");
-        try (PrintWriter writer = new PrintWriter(sqlFile)) {
-            for (String sqlStatement : sqlStatements) {
-                writer.println(sqlStatement);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+        StringBuilder sqlContent = new StringBuilder();
+        for (String sqlStatement : sqlStatements) {
+            sqlContent.append(sqlStatement).append("\n");
         }
-        map.put("sqlFile", sqlFile);
+        byte[] sqlBytes = sqlContent.toString().getBytes(StandardCharsets.UTF_8);
+        String base64Sql = Base64.getEncoder().encodeToString(sqlBytes);
+        map.put("base64Sql", base64Sql);
         return map;
     }
 
@@ -188,19 +190,16 @@ public class ExcelToSqlServerImpl implements ExcelToSqlServer {
             whereSQL.append(valuesSQL).append(")");
             sql = deleteSQL.toString() + whereSQL.toString();
         }
-        File sqlFile = new File(tableName + ".sql");
-        try (PrintWriter writer = new PrintWriter(sqlFile)) {
-            writer.println(sql);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
         Map map = new HashMap<>();
-        map.put("sqlFile", sqlFile);
+        StringBuilder sqlContent = new StringBuilder();
+        sqlContent.append(sql).append("\n");
+        byte[] sqlBytes = sqlContent.toString().getBytes(StandardCharsets.UTF_8);
+        String base64Sql = Base64.getEncoder().encodeToString(sqlBytes);
+        map.put("base64Sql", base64Sql);
         List list = new ArrayList<>();
         list.add(sql);
-        map.put("previewData",list );
+        map.put("previewData", list);
         return map;
-
     }
 
     private void saveData(Sheet sheet, List<Integer> conditionNums, StringBuilder valuesSQL, int start) {
@@ -235,7 +234,7 @@ public class ExcelToSqlServerImpl implements ExcelToSqlServer {
         insertSQL.append(") ");
 
         int rowIndex = 0; // 用于跟踪当前行的索引
-        Map returnData = new HashMap<String,Object>();
+        Map returnData = new HashMap<String, Object>();
         for (Row row : sheet) {
             StringBuilder valuesSQL = new StringBuilder("VALUES (");
             if (rowIndex > 0) {
@@ -265,15 +264,14 @@ public class ExcelToSqlServerImpl implements ExcelToSqlServer {
 
 
         // 生成 .sql 文件并将 SQL 语句写入其中
-        File sqlFile = new File(tableName + ".sql");
-        try (PrintWriter writer = new PrintWriter(sqlFile)) {
-            for (String sqlStatement : sqlStatements) {
-                writer.println(sqlStatement);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+        StringBuilder sqlContent = new StringBuilder();
+        for (String sqlStatement : sqlStatements) {
+            sqlContent.append(sqlStatement).append("\n");
         }
-        returnData.put("sqlFile", sqlFile);
+        byte[] sqlBytes = sqlContent.toString().getBytes(StandardCharsets.UTF_8);
+        String base64Sql = Base64.getEncoder().encodeToString(sqlBytes);
+
+        returnData.put("base64Sql", base64Sql);
         return returnData;
     }
 
