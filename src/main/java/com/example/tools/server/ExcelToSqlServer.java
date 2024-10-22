@@ -1,7 +1,7 @@
-package com.example.excelsql.server;
+package com.example.tools.server;
 
 
-import com.example.excelsql.dto.ExcelToSqlPO;
+import com.example.tools.dto.ExcelToSqlPO;
 
 import java.util.Map;
 

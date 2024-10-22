@@ -1,8 +1,8 @@
-package com.example.excelsql.controller;
+package com.example.tools.controller;
 
-import com.example.excelsql.dto.ExcelToSqlPO;
-import com.example.excelsql.dto.ExcelToSqlResponse;
-import com.example.excelsql.server.ExcelToSqlServer;
+import com.example.tools.dto.ExcelToSqlPO;
+import com.example.tools.dto.ExcelToSqlResponse;
+import com.example.tools.server.ExcelToSqlServer;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -12,7 +12,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.ModelAndView;
 
 import javax.annotation.Resource;
 import java.io.*;
@@ -27,6 +26,7 @@ import java.util.Map;
  * @date 2023/09/06
  *
  */
+@RequestMapping("/api")
 @RestController
 public class ExcelToSqlController {
     @Resource
@@ -54,20 +54,6 @@ public class ExcelToSqlController {
         return ResponseEntity.ok()
                 .headers(headers)
                 .body(response);
-    }
-
-    @GetMapping("/excelToSqlPage")
-    public ModelAndView excelToSqlPage() {
-        ModelAndView modelAndView = new ModelAndView();
-        modelAndView.setViewName("index");
-        return modelAndView;
-    }
-
-    @GetMapping("/excelToSqlPage/preview")
-    public ModelAndView excelToSqlPagePreview() {
-        ModelAndView modelAndView = new ModelAndView();
-        modelAndView.setViewName("preview");
-        return modelAndView;
     }
 
     @PostMapping("/getSheetNames")

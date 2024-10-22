@@ -1,13 +1,13 @@
-package com.example.excelsql;
+package com.example.tools;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class ExcelSqlApplication {
+public class ToolsApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(ExcelSqlApplication.class, args);
+        SpringApplication.run(ToolsApplication.class, args);
     }
 
 }

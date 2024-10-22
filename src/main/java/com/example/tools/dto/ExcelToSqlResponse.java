@@ -1,8 +1,7 @@
-package com.example.excelsql.dto;
+package com.example.tools.dto;
 
 import lombok.Data;
 
-import java.io.File;
 import java.util.List;
 
 @Data
