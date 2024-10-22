@@ -1,4 +1,4 @@
-package com.example.excelsql.dto;
+package com.example.tools.dto;
 
 import lombok.Data;
 import org.springframework.web.multipart.MultipartFile;
